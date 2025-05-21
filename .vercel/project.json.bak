@@ -1,0 +1,14 @@
+{
+  "projectId": "prj_recipe_hub",
+  "orgId": "team_recipe_hub",
+  "settings": {
+    "framework": "astro",
+    "buildCommand": "npm run build",
+    "devCommand": "npm run dev",
+    "outputDirectory": "dist",
+    "nodeVersion": "20.x",
+    "functions": {
+      "runtime": "nodejs20.x"
+    }
+  }
+} 

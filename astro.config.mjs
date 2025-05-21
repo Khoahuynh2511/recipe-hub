@@ -3,16 +3,15 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import prefetch from '@astrojs/prefetch';
 import { VitePWA } from 'vite-plugin-pwa';
-import vercel from '@astrojs/vercel/serverless';
+import netlify from '@astrojs/netlify';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://recipe-hub.vercel.app',
+  site: 'https://recipe-hub.netlify.app',
   output: 'server',
-  adapter: vercel({
-    includeFiles: ['./public/manifest.json'],
-    // Cập nhật runtime Node.js
-    nodeVersion: 'latest'
+  adapter: netlify({
+    // Cấu hình Netlify adapter
+    edgeMiddleware: true // Cho phép Edge Functions
   }),
   // Những trang dùng dynamic routing cần server-side rendering
   // Nếu không cần phức tạp, có thể để tất cả đều là static

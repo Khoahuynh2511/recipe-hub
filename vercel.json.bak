@@ -1,0 +1,17 @@
+{
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "functions": {
+    "dist/functions/render.func": {
+      "memory": 1024,
+      "maxDuration": 10,
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/.*",
+      "dest": "dist/functions/render.func"
+    }
+  ]
+} 

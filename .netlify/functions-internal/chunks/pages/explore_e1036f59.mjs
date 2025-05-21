@@ -1,0 +1,27 @@
+/* empty css                            */import { f as createComponent, r as renderTemplate, j as renderComponent, m as maybeRenderHead, g as addAttribute } from '../astro_5234216a.mjs';
+import 'html-escaper';
+import { h as getMealCategories, i as getMealAreas, j as getDrinkCategories, b as $$MainLayout } from './_area__4cd0eaa4.mjs';
+
+const $$Explore = createComponent(async ($$result, $$props, $$slots) => {
+  const [mealCategories, mealAreas, drinkCategories] = await Promise.all([
+    getMealCategories(),
+    getMealAreas(),
+    getDrinkCategories()
+  ]);
+  return renderTemplate`${renderComponent($$result, "MainLayout", $$MainLayout, { "title": "Explore", "description": "Explore food and drink recipes by category, region, or type" }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="container mx-auto px-6 py-8"> <h1 class="text-3xl md:text-4xl font-bold mb-4 text-center">Explore the Culinary World</h1> <!-- Meal Categories --> <section class="mb-16"> <h2 class="text-2xl font-bold mb-6 flex items-center"> <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path> </svg>
+Meal Categories
+</h2> <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"> ${mealCategories.map((category) => renderTemplate`<a${addAttribute(`/category/meal/${encodeURIComponent(category.strCategory)}`, "href")} class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden group"> <div class="aspect-square bg-primary-100 flex items-center justify-center p-4"> <div class="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold group-hover:bg-primary-700 transition-colors"> ${category.strCategory.charAt(0)} </div> </div> <div class="p-3 text-center"> <h3 class="font-medium group-hover:text-primary-600 transition-colors"> ${category.strCategory} </h3> </div> </a>`)} </div> </section> <!-- Cuisines by Area --> <section class="mb-16"> <h2 class="text-2xl font-bold mb-6 flex items-center"> <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path> </svg>
+International Cuisines
+</h2> <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"> ${mealAreas.map((area) => renderTemplate`<a${addAttribute(`/area/${encodeURIComponent(area.strArea)}`, "href")} class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden p-4 text-center group"> <h3 class="font-medium group-hover:text-primary-600 transition-colors"> ${area.strArea} </h3> </a>`)} </div> </section> <!-- Drink Categories --> <section class="mb-16"> <h2 class="text-2xl font-bold mb-6 flex items-center"> <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-secondary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path> </svg>
+Drink Categories
+</h2> <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"> ${drinkCategories.map((category) => renderTemplate`<a${addAttribute(`/category/drink/${encodeURIComponent(category.strCategory)}`, "href")} class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden group"> <div class="aspect-square bg-secondary-100 flex items-center justify-center p-4"> <div class="w-16 h-16 bg-secondary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold group-hover:bg-secondary-700 transition-colors"> ${category.strCategory.charAt(0)} </div> </div> <div class="p-3 text-center"> <h3 class="font-medium group-hover:text-secondary-600 transition-colors"> ${category.strCategory} </h3> </div> </a>`)} </div> </section> <!-- Call to Action - Search --> <section class="bg-gray-50 rounded-xl p-8 text-center"> <h2 class="text-2xl font-bold mb-4">Can't find what you're looking for?</h2> <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+Use our search feature to find meals or drinks by name, ingredients, or keywords.
+</p> <a href="/search" class="btn btn-primary">
+Search Recipes
+</a> </section> </div> ` })}`;
+}, "D:/recipe-hub/src/pages/explore.astro", void 0);
+
+const $$file = "D:/recipe-hub/src/pages/explore.astro";
+const $$url = "/explore";
+
+export { $$Explore as default, $$file as file, $$url as url };

@@ -1,0 +1,9 @@
+/search                      /.netlify/functions/entry    200
+/pairing                     /.netlify/functions/entry    200
+/explore                     /.netlify/functions/entry    200
+/                            /.netlify/functions/entry    200
+/_image                      /.netlify/functions/entry    200
+/area/:area                  /.netlify/functions/entry    200
+/recipe/:type/:id            /.netlify/functions/entry    200
+/pairing/meal/:id            /.netlify/functions/entry    200
+/category/:type/:category    /.netlify/functions/entry    200

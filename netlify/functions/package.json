@@ -1,0 +1,10 @@
+{
+  "name": "recipe-hub-functions",
+  "description": "Netlify Functions cho RecipeHub",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
