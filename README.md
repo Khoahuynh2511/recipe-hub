@@ -38,7 +38,7 @@ Sử dụng **TensorFlow Universal Sentence Encoder** để phân tích ngữ ng
 - **Tìm kiếm**: [Fuse.js](https://fusejs.io/) - Thư viện tìm kiếm mờ nhẹ
 - **Machine Learning**: [TensorFlow.js](https://www.tensorflow.org/js) - Thư viện học máy cho JavaScript
 - **Lưu trữ cục bộ**: IndexedDB, localStorage với [idb-keyval](https://github.com/jakearchibald/idb-keyval)
-- **API**: TheMealDB, TheCocktailDB, OpenRecipes
+- **API**: TheMealDB, TheCocktailDB
 
 ## 🏗️ Cấu trúc dự án
 
@@ -86,7 +86,6 @@ Recipe Hub sử dụng dữ liệu từ nhiều nguồn:
 
 - [TheMealDB](https://www.themealdb.com/) - Cơ sở dữ liệu món ăn
 - [TheCocktailDB](https://www.thecocktaildb.com/) - Cơ sở dữ liệu đồ uống
-- [OpenRecipes](https://github.com/fictivekin/openrecipes) - Bộ dữ liệu công thức mở
 
 ## 🔮 Tính năng sắp tới
 

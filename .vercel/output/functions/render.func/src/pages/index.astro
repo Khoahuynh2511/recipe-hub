@@ -1,0 +1,164 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import RecipeCard from '../components/RecipeCard.astro';
+import LoadingSkeleton from '../components/LoadingSkeleton.astro';
+import { getRandomMeal, getRandomDrink } from '../lib/api';
+
+// Fetch a random meal and drink
+const [meal, drink] = await Promise.all([
+  getRandomMeal(),
+  getRandomDrink()
+]);
+---
+
+<MainLayout title="Home" description="Discover recipes and drinks from around the world">
+  <!-- Hero Banner -->
+  <section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
+    <div class="container mx-auto px-6 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-6">
+        Discover Culinary Recipes
+      </h1>
+      <p class="text-xl mb-8 max-w-2xl mx-auto">
+        Search thousands of food recipes and drinks. Save your favorites and create shopping lists for ingredients.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="/search" class="btn bg-white text-primary-700 hover:bg-gray-100">
+          Find Recipes
+        </a>
+        <a href="/explore" class="btn bg-primary-500 text-white hover:bg-primary-400">
+          Explore
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Random Recipes -->
+  <section class="py-16 px-6">
+    <div class="container mx-auto">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold">Random Recipes</h2>
+        <a 
+          href="/" 
+          class="btn btn-outline flex items-center gap-1"
+          aria-label="Refresh random recipes"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Meal of the Day -->
+        <div>
+          <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            Meal of the Day
+          </h3>
+          
+          {meal ? (
+            <RecipeCard
+              id={meal.idMeal}
+              type="meal"
+              title={meal.strMeal}
+              image={meal.strMealThumb}
+              category={meal.strCategory}
+              area={meal.strArea}
+              tags={meal.strTags}
+            />
+          ) : (
+            <LoadingSkeleton type="card" />
+          )}
+        </div>
+        
+        <!-- Drink of the Day -->
+        <div>
+          <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-secondary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Drink of the Day
+          </h3>
+          
+          {drink ? (
+            <RecipeCard
+              id={drink.idDrink}
+              type="drink"
+              title={drink.strDrink}
+              image={drink.strDrinkThumb}
+              category={drink.strCategory}
+              glass={drink.strGlass}
+              alcoholic={drink.strAlcoholic}
+            />
+          ) : (
+            <LoadingSkeleton type="card" />
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Feature Sections -->
+  <section class="py-16 px-6 bg-gray-50">
+    <div class="container mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">Key Features</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+          <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Smart Search</h3>
+          <p class="text-gray-600">
+            Search recipes by name, ingredients, or cuisine type with the most accurate results.
+          </p>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+          <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Recipe Storage</h3>
+          <p class="text-gray-600">
+            Save your favorite recipes to your personal cookbook for easy access anytime, anywhere.
+          </p>
+        </div>
+        
+        <!-- Feature 3 -->
+        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+          <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Shopping List</h3>
+          <p class="text-gray-600">
+            Create shopping lists from your chosen recipes, organized by ingredient type and easy to export.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Call to Action -->
+  <section class="py-16 px-6 bg-secondary-600 text-white">
+    <div class="container mx-auto text-center">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4">Ready to Explore?</h2>
+      <p class="text-lg mb-8 max-w-2xl mx-auto">
+        Thousands of recipes are waiting for you to discover. Start searching now!
+      </p>
+      <a href="/search" class="btn bg-white text-secondary-700 hover:bg-gray-100">
+        Start Searching
+      </a>
+    </div>
+  </section>
+</MainLayout> 

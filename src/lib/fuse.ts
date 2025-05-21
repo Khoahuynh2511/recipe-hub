@@ -1,5 +1,5 @@
 /**
- * Fuse.js setup for fuzzy search on OpenRecipes data
+ * Fuse.js setup for local recipe search
  */
 
 // Thêm khai báo module cho TypeScript
@@ -7,8 +7,8 @@ declare module 'fuse.js';
 
 import Fuse from 'fuse.js';
 
-// Type definition for OpenRecipes data
-export interface OpenRecipe {
+// Type definition for local saved recipes
+export interface SavedRecipe {
   id: string;
   title: string;
   ingredients: string;
@@ -17,12 +17,11 @@ export interface OpenRecipe {
   tags: string[];
 }
 
-// Cache for the loaded data and Fuse instance
-let recipesData: OpenRecipe[] | null = null;
-let fuseInstance: Fuse<OpenRecipe> | null = null;
+// Cache for the Fuse instance
+let fuseInstance: Fuse<SavedRecipe> | null = null;
 
 // Fuse.js search options
-const fuseOptions: Fuse.IFuseOptions<OpenRecipe> = {
+const fuseOptions: Fuse.IFuseOptions<SavedRecipe> = {
   keys: [
     { name: 'title', weight: 2 },
     { name: 'ingredients', weight: 1.5 },
@@ -36,35 +35,25 @@ const fuseOptions: Fuse.IFuseOptions<OpenRecipe> = {
 };
 
 /**
- * Initialize Fuse.js with OpenRecipes data
- * Loads the data from openrecipes.min.json if not already loaded
+ * Initialize Fuse.js with saved recipes data
  */
-export async function initFuse(): Promise<Fuse<OpenRecipe>> {
+export async function initFuse(): Promise<Fuse<SavedRecipe>> {
   if (fuseInstance) {
     return fuseInstance;
   }
 
   try {
-    if (!recipesData) {
-      // Load recipes data if not already loaded
-      const response = await fetch('/openrecipes.min.json');
-      
-      if (!response.ok) {
-        throw new Error(`Failed to load OpenRecipes: ${response.status}`);
-      }
-      
-      recipesData = await response.json();
-      console.log(`Loaded ${recipesData!.length} recipes for search`);
-    }
+    // Get saved recipes from localStorage
+    const savedRecipes: SavedRecipe[] = JSON.parse(localStorage.getItem('cookbook') || '[]');
+    console.log(`Using ${savedRecipes.length} saved recipes for search`);
     
     // Create new Fuse instance
-    fuseInstance = new Fuse(recipesData!, fuseOptions);
+    fuseInstance = new Fuse(savedRecipes, fuseOptions);
     return fuseInstance;
   } catch (error) {
     console.error('Error initializing Fuse search:', error);
     // Create with empty data as fallback
-    recipesData = [];
-    fuseInstance = new Fuse(recipesData, fuseOptions);
+    fuseInstance = new Fuse([], fuseOptions);
     return fuseInstance;
   }
 }
@@ -75,7 +64,7 @@ export async function initFuse(): Promise<Fuse<OpenRecipe>> {
  * @param limit Maximum number of results (default 20)
  * @returns Array of matching recipes with scores
  */
-export async function searchRecipes(query: string, limit = 20): Promise<Fuse.FuseResult<OpenRecipe>[]> {
+export async function searchRecipes(query: string, limit = 20): Promise<Fuse.FuseResult<SavedRecipe>[]> {
   if (!query.trim()) {
     return [];
   }
@@ -95,13 +84,11 @@ export async function searchRecipes(query: string, limit = 20): Promise<Fuse.Fus
  * @param id Recipe ID
  * @returns Recipe or null if not found
  */
-export async function getRecipeById(id: string): Promise<OpenRecipe | null> {
+export async function getRecipeById(id: string): Promise<SavedRecipe | null> {
   try {
-    if (!recipesData) {
-      await initFuse();
-    }
-    
-    return recipesData?.find(recipe => recipe.id === id) || null;
+    // Get saved recipes from localStorage
+    const savedRecipes: SavedRecipe[] = JSON.parse(localStorage.getItem('cookbook') || '[]');
+    return savedRecipes.find(recipe => recipe.id === id) || null;
   } catch (error) {
     console.error('Error getting recipe by ID:', error);
     return null;

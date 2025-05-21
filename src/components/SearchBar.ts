@@ -5,7 +5,7 @@
 
 import { searchRecipes } from '../lib/fuse';
 import { searchMealsByName, searchDrinksByName } from '../lib/api';
-import type { OpenRecipe } from '../lib/fuse';
+import type { SavedRecipe } from '../lib/fuse';
 import type { Meal, Drink } from '../lib/api';
 
 // Core search functionality
@@ -101,8 +101,7 @@ export class SearchBar {
     
     try {
       // Perform different searches in parallel
-      const [fuseResults, mealResults, drinkResults] = await Promise.all([
-        searchRecipes(query, 20),
+      const [mealResults, drinkResults] = await Promise.all([
         searchMealsByName(query),
         searchDrinksByName(query)
       ]);
@@ -110,7 +109,6 @@ export class SearchBar {
       // Create sections for the results
       const mealResultsHtml = this.generateMealResultsHtml(mealResults);
       const drinkResultsHtml = this.generateDrinkResultsHtml(drinkResults);
-      const openRecipesHtml = this.generateOpenRecipesHtml(fuseResults);
       
       // Combine results
       const combinedResults = `
@@ -118,9 +116,8 @@ export class SearchBar {
         
         ${mealResultsHtml}
         ${drinkResultsHtml}
-        ${openRecipesHtml}
         
-        ${!mealResults.length && !drinkResults.length && !fuseResults.length ? `
+        ${!mealResults.length && !drinkResults.length ? `
           <div class="text-center py-12 bg-gray-50 rounded-lg">
             <p class="text-gray-600 mb-2">Không tìm thấy kết quả nào phù hợp</p>
             <p class="text-gray-500 text-sm">Hãy thử từ khóa khác hoặc kiểm tra lỗi chính tả</p>
@@ -243,51 +240,6 @@ export class SearchBar {
                 </div>
               </div>
             </a>
-          `).join('')}
-        </div>
-      </section>
-    `;
-  }
-  
-  private generateOpenRecipesHtml(recipes: Array<{ item: OpenRecipe, score: number }>): string {
-    if (!recipes.length) return '';
-    
-    return `
-      <section class="mb-10">
-        <h3 class="text-xl font-semibold mb-4 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          OpenRecipes (${recipes.length})
-        </h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          ${recipes.map(({ item }) => `
-            <div class="card h-full flex flex-col p-4">
-              <h3 class="font-semibold text-lg mb-2 text-gray-800">
-                ${item.title}
-              </h3>
-              
-              ${item.cuisine ? `
-                <div class="mb-3">
-                  <span class="badge badge-secondary">
-                    ${item.cuisine}
-                  </span>
-                </div>
-              ` : ''}
-              
-              <div class="mt-2 text-sm text-gray-600 line-clamp-3 mb-3">
-                <strong>Nguyên liệu:</strong> ${item.ingredients.substring(0, 100)}${item.ingredients.length > 100 ? '...' : ''}
-              </div>
-              
-              <div class="mt-auto flex flex-wrap gap-1">
-                ${item.tags.slice(0, 3).map(tag => `
-                  <span class="badge bg-gray-100 text-gray-800 text-xs">
-                    ${tag}
-                  </span>
-                `).join('')}
-              </div>
-            </div>
           `).join('')}
         </div>
       </section>

@@ -69,7 +69,9 @@ const siteUrl = import.meta.env.SITE || "https://recipe-hub.netlify.app";
               console.log('Service Worker registered with scope:', registration.scope);
             })
             .catch(error => {
-              console.error('Service Worker registration failed:', error);
+              console.log('Service Worker registration skipped in development mode');
+              // Khong hien loi trong moi truong phat trien
+              // console.error('Service Worker registration failed:', error);
             });
         });
       }
@@ -98,15 +100,7 @@ const siteUrl = import.meta.env.SITE || "https://recipe-hub.netlify.app";
         </button>
         
         <!-- Shopping list / Cookbook button -->
-        <button 
-          id="toggle-sidebar" 
-          class="ml-4 flex items-center p-2 rounded-md text-gray-700 hover:text-primary-600 hover:bg-gray-100"
-          aria-label="Open recipes and shopping list"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-        </button>
+                <button           id="toggle-sidebar"           class="ml-4 flex items-center p-2 rounded-md text-gray-700 hover:text-primary-600 hover:bg-gray-100"          aria-label="Saved recipes and shopping list"        >          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />          </svg>        </button>
       </div>
       
       <!-- Mobile Navigation -->
@@ -129,15 +123,7 @@ const siteUrl = import.meta.env.SITE || "https://recipe-hub.netlify.app";
           
                     <div>            <h3 class="text-lg font-semibold mb-3">Links</h3>            <ul class="space-y-2 text-gray-300 text-sm">              <li><a href="/" class="hover:text-primary-300">Home</a></li>              <li><a href="/explore" class="hover:text-primary-300">Explore</a></li>              <li><a href="/search" class="hover:text-primary-300">Search</a></li>            </ul>          </div>
           
-          <div>
-            <h3 class="text-lg font-semibold mb-3">Data Sources</h3>
-            <ul class="space-y-2 text-gray-300 text-sm">
-              <li><a href="https://www.themealdb.com" target="_blank" class="hover:text-primary-300">TheMealDB</a></li>
-              <li><a href="https://www.thecocktaildb.com" target="_blank" class="hover:text-primary-300">TheCocktailDB</a></li>
-              <li><a href="https://tasty.co" target="_blank" class="hover:text-primary-300">Tasty</a></li>
-              <li><a href="https://github.com/fictivekin/openrecipes" target="_blank" class="hover:text-primary-300">OpenRecipes</a></li>
-            </ul>
-          </div>
+                    <div>            <h3 class="text-lg font-semibold mb-3">Data Sources</h3>            <ul class="space-y-2 text-gray-300 text-sm">              <li><a href="https://www.themealdb.com" target="_blank" class="hover:text-primary-300">TheMealDB</a></li>              <li><a href="https://www.thecocktaildb.com" target="_blank" class="hover:text-primary-300">TheCocktailDB</a></li>              <li><a href="https://tasty.co" target="_blank" class="hover:text-primary-300">Tasty</a></li>            </ul>          </div>
           
           <div>
             <h3 class="text-lg font-semibold mb-3">Installation</h3>

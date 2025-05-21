@@ -3,11 +3,18 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import prefetch from '@astrojs/prefetch';
 import { VitePWA } from 'vite-plugin-pwa';
+import vercel from '@astrojs/vercel/serverless';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://recipe-hub.netlify.app',
+  site: 'https://recipe-hub.vercel.app',
   output: 'server',
+  adapter: vercel(),
+  // Những trang dùng dynamic routing cần server-side rendering
+  // Nếu không cần phức tạp, có thể để tất cả đều là static
+  prefetch: {
+    defaultStrategy: 'hover'
+  },
   integrations: [
     tailwind(),
     sitemap(),
@@ -18,29 +25,19 @@ export default defineConfig({
       VitePWA({
         registerType: 'autoUpdate',
         manifest: {
-          name: 'Recipe Hub',
+          name: 'RecipeHub',
           short_name: 'RecipeHub',
-          description: 'Find and save food recipes and cocktail drinks',
+          description: 'Ứng dụng khám phá và quản lý công thức nấu ăn',
           theme_color: '#38a169',
           background_color: '#ffffff',
           display: 'standalone',
           icons: [
             {
-              src: '/icons/icon-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
-            },
-            {
-              src: '/icons/icon-512x512.png',
+              src: '/icons/logo.png',
               sizes: '512x512',
               type: 'image/png',
-            },
-            {
-              src: '/icons/icon-512x512-maskable.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'maskable',
-            },
+              purpose: 'any'
+            }
           ],
         },
         workbox: {
@@ -90,6 +87,10 @@ export default defineConfig({
             },
           ],
         },
+        // Tùy chọn thêm: đảm bảo service-worker hoạt động ngay cả trong môi trường dev
+        devOptions: {
+          enabled: true
+        }
       }),
     ],
   },

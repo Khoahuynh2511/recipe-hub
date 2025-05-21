@@ -4,6 +4,8 @@ import RecipeCard from '../../../components/RecipeCard.astro';
 import LoadingSkeleton from '../../../components/LoadingSkeleton.astro';
 import { getMealsByCategory, getDrinksByCategory } from '../../../lib/api';
 
+export const prerender = false;
+
 // Get parameters from URL
 const { type, category } = Astro.params;
 
