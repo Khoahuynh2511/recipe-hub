@@ -9,7 +9,11 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   site: 'https://recipe-hub.vercel.app',
   output: 'server',
-  adapter: vercel(),
+  adapter: vercel({
+    includeFiles: ['./public/manifest.json'],
+    // Cập nhật runtime Node.js
+    nodeVersion: 'latest'
+  }),
   // Những trang dùng dynamic routing cần server-side rendering
   // Nếu không cần phức tạp, có thể để tất cả đều là static
   prefetch: {

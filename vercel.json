@@ -4,6 +4,11 @@
   "buildCommand": "npm run build",
   "devCommand": "astro dev",
   "installCommand": "npm install",
+  "functions": {
+    "dist/functions/**": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "headers": [
     {
       "source": "/service-worker.js",
