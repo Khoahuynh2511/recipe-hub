@@ -1,0 +1,405 @@
+---
+import MainLayout from '../../../layouts/MainLayout.astro';
+import LoadingSkeleton from '../../../components/LoadingSkeleton.astro';
+import { getMealById, getDrinkById, extractIngredients, formatTags } from '../../../lib/api';
+import { getRecipeById } from '../../../lib/fuse';
+import { addToRecentViews, isInCookbook, addToCookbook, removeFromCookbook } from '../../../lib/store';
+
+// Required function for dynamic routes in Astro
+export async function getStaticPaths() {
+  // Since we can't know all IDs in advance, we'll use sample IDs
+  // and SSR configuration would be better for this case
+  return [
+    { params: { type: 'meal', id: '52772' } },   // Beef Teriyaki
+    { params: { type: 'meal', id: '52771' } },   // Spicy Arrabiata Penne
+    { params: { type: 'drink', id: '11007' } },  // Margarita
+    { params: { type: 'drink', id: '11001' } },  // Old Fashioned
+  ];
+}
+
+// Get the recipe type and ID from the URL
+const { type, id } = Astro.params;
+
+// Fetch recipe data based on type
+let recipe = null;
+let ingredients = [];
+let tags = [];
+let title = '';
+let image = '';
+let instructions = '';
+
+if (type === 'meal') {
+  recipe = await getMealById(id);
+  if (recipe) {
+    title = recipe.strMeal;
+    image = recipe.strMealThumb;
+    instructions = recipe.strInstructions;
+    ingredients = extractIngredients(recipe);
+    tags = formatTags(recipe.strTags);
+  }
+} else if (type === 'drink') {
+  recipe = await getDrinkById(id);
+  if (recipe) {
+    title = recipe.strDrink;
+    image = recipe.strDrinkThumb;
+    instructions = recipe.strInstructions;
+    ingredients = extractIngredients(recipe);
+    tags = formatTags(recipe.strTags);
+  }
+}
+
+// Add to recent views if recipe found
+if (recipe && id && type) {
+  addToRecentViews(id, type as 'meal' | 'drink');
+}
+
+// Generate metadata
+const metaTitle = recipe ? `${title} | RecipeHub` : 'Recipe Not Found';
+const metaDescription = recipe 
+  ? `Detailed recipe for ${title}. Discover how to make it and the ingredients for this dish.`
+  : 'The recipe you are looking for does not exist or has been removed.';
+---
+
+<MainLayout title={title || 'Not Found'} description={metaDescription}>
+  <div class="container mx-auto px-4 py-8">
+    {recipe ? (
+      <div class="max-w-5xl mx-auto">
+        <!-- Recipe Header -->
+        <div class="flex flex-col md:flex-row gap-8 mb-10">
+          <!-- Recipe Image -->
+          <div class="w-full md:w-2/5">
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <img 
+                src={image} 
+                alt={title} 
+                class="w-full h-auto object-cover aspect-square"
+              />
+            </div>
+          </div>
+          
+          <!-- Recipe Info -->
+          <div class="w-full md:w-3/5">
+            <h1 class="text-3xl font-bold mb-3">{title}</h1>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              {type === 'meal' && recipe.strCategory && (
+                <span class="badge badge-primary">
+                  {recipe.strCategory}
+                </span>
+              )}
+              
+              {type === 'meal' && recipe.strArea && (
+                <span class="badge badge-secondary">
+                  {recipe.strArea}
+                </span>
+              )}
+              
+              {type === 'drink' && recipe.strCategory && (
+                <span class="badge badge-primary">
+                  {recipe.strCategory}
+                </span>
+              )}
+              
+              {type === 'drink' && recipe.strAlcoholic && (
+                <span class="badge badge-secondary">
+                  {recipe.strAlcoholic}
+                </span>
+              )}
+              
+              {type === 'drink' && recipe.strGlass && (
+                <span class="badge bg-gray-100 text-gray-800">
+                  {recipe.strGlass}
+                </span>
+              )}
+              
+              {tags.map(tag => (
+                <span class="badge bg-gray-100 text-gray-800">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-3 mb-6">
+              <button
+                id="save-recipe"
+                class="btn btn-primary"
+                data-id={id}
+                data-type={type}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Save Recipe
+              </button>
+              
+              <button
+                id="add-to-shopping"
+                class="btn btn-outline"
+                data-id={id}
+                data-type={type}
+                data-title={title}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Add Ingredients
+              </button>
+              
+              {type === 'meal' && (
+                <a
+                  href={`/pairing/meal/${id}`}
+                  class="btn btn-outline"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Suggested Drinks
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Ingredients & Instructions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+          <!-- Ingredients -->
+          <div class="md:col-span-1">
+            <h2 class="text-xl font-bold mb-4">Ingredients</h2>
+            <ul class="space-y-2">
+              {ingredients.map(({ ingredient, measure }) => (
+                <li class="flex items-start gap-2">
+                  <span class="inline-block w-5 h-5 rounded-full bg-primary-100 text-primary-600 flex-shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  <span>
+                    <strong>{measure}</strong> {ingredient}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <!-- Instructions -->
+          <div class="md:col-span-2">
+            <h2 class="text-xl font-bold mb-4">Instructions</h2>
+            <div class="prose max-w-none">
+              {instructions.split('\n').map(paragraph => (
+                <p class="mb-4">{paragraph}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Additional Info (Video, Source, etc) -->
+        {type === 'meal' && recipe.strYoutube && (
+          <div class="mb-10">
+            <h2 class="text-xl font-bold mb-4">Video Tutorial</h2>
+            <div class="aspect-video">
+              <iframe
+                width="100%"
+                height="100%"
+                src={recipe.strYoutube.replace('watch?v=', 'embed/')}
+                title={`Video tutorial for ${title}`}
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                class="rounded-lg"
+              ></iframe>
+            </div>
+          </div>
+        )}
+      </div>
+    ) : (
+      <div class="text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mb-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h1 class="text-2xl font-bold mb-2">Recipe Not Found</h1>
+        <p class="text-gray-600 mb-8">
+          The recipe you are looking for does not exist or has been removed.
+        </p>
+        <div class="flex justify-center gap-4">
+          <a href="/" class="btn btn-primary">Return Home</a>
+          <a href="/search" class="btn btn-outline">Find Other Recipes</a>
+        </div>
+      </div>
+    )}
+  </div>
+</MainLayout>
+
+<script>
+  import { addToCookbook, removeFromCookbook, isInCookbook, addToShoppingList } from '../../../lib/store';
+  import { extractIngredients } from '../../../lib/api';
+  
+  // DOM elements
+  const saveButton = document.getElementById('save-recipe');
+  const shoppingButton = document.getElementById('add-to-shopping');
+  
+  // Update save button text based on saved status
+  async function updateSaveButtonState() {
+    if (!saveButton) return;
+    
+    const id = saveButton.getAttribute('data-id');
+    const type = saveButton.getAttribute('data-type') as 'meal' | 'drink';
+    
+    if (!id || !type) return;
+    
+    const saved = await isInCookbook(id, type);
+    
+    if (saved) {
+      saveButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        Saved
+      `;
+      saveButton.classList.remove('btn-primary');
+      saveButton.classList.add('btn-outline');
+    } else {
+      saveButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        Save Recipe
+      `;
+      saveButton.classList.add('btn-primary');
+      saveButton.classList.remove('btn-outline');
+    }
+  }
+  
+  // Toggle saving recipe to cookbook
+  async function toggleSaveRecipe() {
+    const id = saveButton?.getAttribute('data-id');
+    const type = saveButton?.getAttribute('data-type') as 'meal' | 'drink';
+    
+    if (!id || !type) return;
+    
+    const saved = await isInCookbook(id, type);
+    
+    if (saved) {
+      await removeFromCookbook(id, type);
+    } else {
+      // Fetch the recipe data to save
+      let recipeData;
+      
+      try {
+        if (type === 'meal') {
+          const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
+          const data = await response.json();
+          recipeData = data.meals?.[0];
+        } else {
+          const response = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${id}`);
+          const data = await response.json();
+          recipeData = data.drinks?.[0];
+        }
+        
+        if (recipeData) {
+          await addToCookbook({
+            id,
+            type,
+            data: recipeData,
+          });
+        }
+      } catch (error) {
+        console.error('Error saving recipe:', error);
+      }
+    }
+    
+    updateSaveButtonState();
+    
+    // Dispatch event to update cookbook in sidebar
+    document.dispatchEvent(new CustomEvent('cookbook-updated'));
+  }
+  
+  // Add all ingredients to shopping list
+  async function addIngredientsToShoppingList() {
+    const id = shoppingButton?.getAttribute('data-id');
+    const type = shoppingButton?.getAttribute('data-type') as 'meal' | 'drink';
+    const title = shoppingButton?.getAttribute('data-title') || '';
+    
+    if (!id || !type) return;
+    
+    try {
+      let recipeData;
+      
+      if (type === 'meal') {
+        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
+        const data = await response.json();
+        recipeData = data.meals?.[0];
+      } else {
+        const response = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${id}`);
+        const data = await response.json();
+        recipeData = data.drinks?.[0];
+      }
+      
+      if (recipeData) {
+        const ingredients = extractIngredients(recipeData);
+        
+        // Categorize ingredients
+        for (const { ingredient, measure } of ingredients) {
+          const category = categorizeIngredient(ingredient);
+          
+          await addToShoppingList({
+            id: Date.now() + Math.random().toString(36).substring(2, 10),
+            name: ingredient,
+            quantity: measure,
+            checked: false,
+            category,
+            recipe: title,
+          });
+        }
+        
+        // Show notification
+        alert(`Added ${ingredients.length} ingredients to shopping list!`);
+        
+        // Dispatch event to update shopping list
+        document.dispatchEvent(new CustomEvent('shopping-list-updated'));
+      }
+    } catch (error) {
+      console.error('Error adding ingredients:', error);
+    }
+  }
+  
+  // Helper to categorize ingredients
+  function categorizeIngredient(ingredient: string): 'meat' | 'produce' | 'dairy' | 'bakery' | 'dry goods' | 'other' {
+    const lowerIngredient = ingredient.toLowerCase();
+    
+    // Meat & fish
+    if (/chicken|beef|pork|lamb|steak|fish|salmon|shrimp|meat|bacon|sausage|turkey/i.test(lowerIngredient)) {
+      return 'meat';
+    }
+    
+    // Produce (fruits & vegetables)
+    if (/apple|banana|orange|lemon|lime|onion|garlic|potato|tomato|carrot|pepper|lettuce|spinach|cucumber|celery|fruit|vegetable|herb|leaves/i.test(lowerIngredient)) {
+      return 'produce';
+    }
+    
+    // Dairy
+    if (/milk|cheese|cream|butter|yogurt|egg|yoghurt|dairy/i.test(lowerIngredient)) {
+      return 'dairy';
+    }
+    
+    // Bakery
+    if (/bread|flour|cake|biscuit|cookie|muffin|pastry|dough|bun|bakery/i.test(lowerIngredient)) {
+      return 'bakery';
+    }
+    
+    // Dry goods
+    if (/rice|pasta|noodle|cereal|bean|lentil|sugar|salt|spice|oil|vinegar|sauce|syrup|honey|seasoning|powder/i.test(lowerIngredient)) {
+      return 'dry goods';
+    }
+    
+    // Default
+    return 'other';
+  }
+  
+  // Add event listeners
+  saveButton?.addEventListener('click', toggleSaveRecipe);
+  shoppingButton?.addEventListener('click', addIngredientsToShoppingList);
+  
+  // Initialize
+  document.addEventListener('DOMContentLoaded', updateSaveButtonState);
+</script> 

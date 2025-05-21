@@ -1,0 +1,160 @@
+---
+// This component adds client-side JavaScript to manage the shopping list
+---
+
+<script>
+  import { getShoppingList, updateShoppingListItem, removeFromShoppingList, clearShoppingList, exportShoppingListCSV } from '../lib/store';
+  
+  // DOM elements
+  const shoppingList = document.getElementById('shopping-list');
+  const shoppingEmpty = document.getElementById('shopping-empty');
+  const exportButton = document.getElementById('export-shopping-list');
+  const clearButton = document.getElementById('clear-shopping-list');
+  
+  // Initial render of the shopping list
+  async function renderShoppingList() {
+    if (!shoppingList || !shoppingEmpty) return;
+    
+    const items = await getShoppingList();
+    
+    if (items.length === 0) {
+      shoppingEmpty?.classList.remove('hidden');
+      return;
+    }
+    
+    shoppingEmpty?.classList.add('hidden');
+    
+    // Group items by category
+    const categorizedItems = {
+      meat: items.filter(item => item.category === 'meat'),
+      produce: items.filter(item => item.category === 'produce'),
+      dairy: items.filter(item => item.category === 'dairy'),
+      bakery: items.filter(item => item.category === 'bakery'),
+      'dry goods': items.filter(item => item.category === 'dry goods'),
+      other: items.filter(item => item.category === 'other'),
+    };
+    
+    // Create HTML for the shopping list
+    let html = '';
+    
+    // Add each category section
+    for (const [category, categoryItems] of Object.entries(categorizedItems)) {
+      if (categoryItems.length > 0) {
+        html += `
+          <div class="mb-4">
+            <h4 class="font-medium text-sm text-gray-500 uppercase tracking-wider mb-2">${formatCategory(category)}</h4>
+            <div class="space-y-2">
+              ${categoryItems.map(item => `
+                <div class="flex items-center gap-2 p-2 rounded border border-gray-200 ${item.checked ? 'bg-gray-50' : 'bg-white'}">
+                  <input 
+                    type="checkbox" 
+                    id="item-${item.id}" 
+                    class="h-4 w-4 text-primary-600 rounded" 
+                    ${item.checked ? 'checked' : ''}
+                    data-item-id="${item.id}"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <label 
+                      for="item-${item.id}" 
+                      class="block text-sm font-medium ${item.checked ? 'text-gray-500 line-through' : 'text-gray-700'}"
+                    >
+                      ${item.name}
+                    </label>
+                    <p class="text-xs text-gray-500 truncate">
+                      ${item.quantity}${item.recipe ? ` · ${item.recipe}` : ''}
+                    </p>
+                  </div>
+                  <button 
+                    class="p-1 text-gray-400 hover:text-red-500" 
+                    aria-label="Xóa"
+                    data-remove-id="${item.id}"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+    
+    shoppingList.innerHTML = html;
+    
+    // Add event listeners to the checkboxes and remove buttons
+    const checkboxes = shoppingList.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', handleItemCheck);
+    });
+    
+    const removeButtons = shoppingList.querySelectorAll('button[data-remove-id]');
+    removeButtons.forEach(button => {
+      button.addEventListener('click', handleItemRemove);
+    });
+  }
+  
+  // Format category name for display
+  function formatCategory(category) {
+    return category.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  }
+  
+  // Handle checkbox changes
+  async function handleItemCheck(event) {
+    const checkbox = event.target;
+    const itemId = checkbox.dataset.itemId;
+    const checked = checkbox.checked;
+    
+    if (itemId) {
+      await updateShoppingListItem(itemId, { checked });
+      renderShoppingList();
+    }
+  }
+  
+  // Handle item removal
+  async function handleItemRemove(event) {
+    const button = event.target.closest('button');
+    const itemId = button.dataset.removeId;
+    
+    if (itemId) {
+      await removeFromShoppingList(itemId);
+      renderShoppingList();
+    }
+  }
+  
+  // Handle clear all button
+  async function handleClearAll() {
+    if (confirm('Bạn có chắc muốn xóa toàn bộ danh sách mua sắm?')) {
+      await clearShoppingList();
+      renderShoppingList();
+    }
+  }
+  
+  // Handle export to CSV
+  async function handleExport() {
+    const csv = await exportShoppingListCSV();
+    
+    // Create a download link
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `shopping-list-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  
+  // Set up event listeners
+  exportButton?.addEventListener('click', handleExport);
+  clearButton?.addEventListener('click', handleClearAll);
+  
+  // Initialize shopping list when the DOM is loaded
+  document.addEventListener('DOMContentLoaded', renderShoppingList);
+  
+  // Setup custom event to refresh shopping list when items are added
+  document.addEventListener('shopping-list-updated', renderShoppingList);
+</script> 

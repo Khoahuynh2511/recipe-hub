@@ -1,0 +1,70 @@
+---
+interface Props {
+  id: string;
+  type: 'meal' | 'drink';
+  title: string;
+  image: string;
+  category?: string;
+  tags?: string;
+  area?: string;
+  glass?: string;
+  alcoholic?: string;
+}
+
+const { id, type, title, image, category, tags, area, glass, alcoholic } = Astro.props;
+
+// Generate the link to the recipe detail page
+const recipeLink = `/recipe/${type}/${id}`;
+
+// Process tags if present
+const tagArray = tags ? tags.split(',').filter(Boolean).map(tag => tag.trim()) : [];
+---
+
+<a href={recipeLink} class="card group h-full flex flex-col">
+  <div class="relative pb-[65%] overflow-hidden">
+    <img 
+      src={image} 
+      alt={title}
+      loading="lazy"
+      class="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+    />
+    
+    {type === 'drink' && alcoholic && (
+      <span class="absolute top-2 right-2 badge badge-primary">
+        {alcoholic}
+      </span>
+    )}
+  </div>
+  
+  <div class="p-4 flex-1 flex flex-col">
+    <h3 class="font-semibold text-lg mb-2 group-hover:text-primary-600 transition-colors line-clamp-2">
+      {title}
+    </h3>
+    
+    <div class="flex flex-wrap gap-2 mt-auto pt-3">
+      {category && (
+        <span class="badge bg-gray-100 text-gray-800">
+          {category}
+        </span>
+      )}
+      
+      {area && (
+        <span class="badge bg-gray-100 text-gray-800">
+          {area}
+        </span>
+      )}
+      
+      {glass && (
+        <span class="badge bg-gray-100 text-gray-800">
+          {glass}
+        </span>
+      )}
+      
+      {tagArray.slice(0, 2).map((tag) => (
+        <span class="badge badge-secondary">
+          {tag}
+        </span>
+      ))}
+    </div>
+  </div>
+</a> 
