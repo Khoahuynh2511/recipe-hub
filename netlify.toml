@@ -22,8 +22,9 @@
   from = "/*"
   to = "/.netlify/functions/entry"
   status = 200
-  force = true
-  conditions = {Role = ["anonymous"]}
 
 [functions]
-  node_bundler = "esbuild" 
+  node_bundler = "esbuild"
+  
+[build.environment]
+  NODE_VERSION = "18" 

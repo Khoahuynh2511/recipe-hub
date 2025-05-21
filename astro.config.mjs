@@ -10,8 +10,8 @@ export default defineConfig({
   site: 'https://recipe-hub.netlify.app',
   output: 'server',
   adapter: netlify({
-    // Cấu hình Netlify adapter
-    edgeMiddleware: true // Cho phép Edge Functions
+    edgeMiddleware: false,
+    mode: 'directory'
   }),
   // Những trang dùng dynamic routing cần server-side rendering
   // Nếu không cần phức tạp, có thể để tất cả đều là static

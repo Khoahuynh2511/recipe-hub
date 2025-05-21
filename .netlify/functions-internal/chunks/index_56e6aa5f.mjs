@@ -1,5 +1,0 @@
-export { renderers } from '../renderers.mjs';
-
-const page = () => import('./pages/index_ba3270ae.mjs').then(n => n.a);
-
-export { page };
